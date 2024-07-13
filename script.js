@@ -13,7 +13,7 @@ const proportionalSize = (size) => {
 };
 
 class Player {
-    constructor() { 
+    constructor() {
         this.position = {
             x: proportionalSize(10),
             y: proportionalSize(400),
@@ -30,4 +30,31 @@ class Player {
         ctx.fillStyle = "#99c9ff";
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
+
+    update() {
+        this.draw();
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+
+        // prevent player from jumping beyond window height
+        if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+            if (this.position.y < 0) {
+                this.position.y = 0;
+                this.velocity.y = gravity;
+            }
+            this.velocity.y += gravity;
+        } else {
+            this.velocity.y = 0;
+        }
+        // prevent player from drifting too far left
+        if (this.position.x < this.width) {
+            this.position.x = this.width;
+        }
+        // prevent player from drifting too far right
+        if (this.position.x >= canvas.width - 2 * this.width) {
+            this.position.x = canvas.width - 2 * this.width;
+        }
+    }
 }
+
+const player = new Player();
