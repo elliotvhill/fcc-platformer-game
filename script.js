@@ -60,7 +60,8 @@ class Player {
 class Platform {
     constructor(x, y) {
         this.position = {
-            x, y
+            x,
+            y,
         };
         this.width = 200;
         this.height = proportionalSize(40);
@@ -73,15 +74,34 @@ class Platform {
 
 const player = new Player();
 
+const platformPositions = [
+    { x: 500, y: proportionalSize(450) },
+    { x: 700, y: proportionalSize(400) },
+    { x: 850, y: proportionalSize(350) },
+    { x: 900, y: proportionalSize(350) },
+    { x: 1050, y: proportionalSize(150) },
+    { x: 2500, y: proportionalSize(450) },
+    { x: 2900, y: proportionalSize(400) },
+    { x: 3150, y: proportionalSize(350) },
+    { x: 3900, y: proportionalSize(450) },
+    { x: 4200, y: proportionalSize(400) },
+    { x: 4400, y: proportionalSize(200) },
+    { x: 4700, y: proportionalSize(150) },
+];
+
+const platforms = platformPositions.map(
+    (platform) => new Platform(platform.x, platform.y)
+);
+
 const animate = () => {
     // use web API to animate frames
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    platforms.forEach((platform) => {
+        platform.draw();
+    });
     player.update();
-    if (
-        keys.rightKey.pressed &&
-        player.position.x < proportionalSize(400)
-    ) {
+    if (keys.rightKey.pressed && player.position.x < proportionalSize(400)) {
         player.velocity.x = 5;
     } else if (
         keys.leftKey.pressed &&
@@ -91,6 +111,16 @@ const animate = () => {
     } else {
         player.velocity.x = 0;
     }
+    if (keys.rightKey.pressed && isCheckpointCollisionDetectionActive) {
+        platforms.forEach((platform) => {
+            platform.position.x -= 5;
+        });
+    } else if (keys.leftKey.pressed &&
+        isCheckpointCollisionDetectionActive) {
+        platforms.forEach((platform) => {
+            platform.position.x += 5;
+        });
+        }
 };
 
 const keys = {
@@ -102,7 +132,7 @@ const keys = {
     },
 };
 
-const movePlayer = (key, xVelocity, isPressed) => { 
+const movePlayer = (key, xVelocity, isPressed) => {
     if (!isCheckpointCollisionDetectionActive) {
         player.velocity.x = 0;
         player.velocity.y = 0;
@@ -142,6 +172,6 @@ startBtn.addEventListener("click", startGame);
 window.addEventListener("keydown", ({ key }) => {
     movePlayer(key, 8, true);
 });
-window.addEventListener("keyup", ({ key }) => { 
+window.addEventListener("keyup", ({ key }) => {
     movePlayer(key, 0, false);
 });
