@@ -115,14 +115,31 @@ const platforms = platformPositions.map(
     (platform) => new Platform(platform.x, platform.y)
 );
 
+const checkpointPositions = [
+    { x: 1170, y: proportionalSize(80), z: 1, },
+    { x: 2900, y: proportionalSize(330), z: 2, },
+    { x: 4800, y: proportionalSize(80), z: 3, },
+];
+
+const checkpoints = checkpointPositions.map(
+    (checkpoint) => new CheckPoint(checkpoint.x, checkpoint.y, checkpoint.z)
+);
+
 const animate = () => {
     // use web API to animate frames
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     platforms.forEach((platform) => {
         platform.draw();
     });
+
+    checkpoints.forEach((checkpoint) => {
+        checkpoint.draw();
+    });
+    
     player.update();
+
     if (keys.rightKey.pressed && player.position.x < proportionalSize(400)) {
         player.velocity.x = 5;
     } else if (
@@ -133,14 +150,22 @@ const animate = () => {
     } else {
         player.velocity.x = 0;
     }
-    if (keys.rightKey.pressed && isCheckpointCollisionDetectionActive) {
+
+    if (keys.rightKey.pressed &&
+        isCheckpointCollisionDetectionActive) {
         platforms.forEach((platform) => {
             platform.position.x -= 5;
+        });
+        checkpoints.forEach((checkpoint) => {
+            checkpoint.position.x -= 5;
         });
     } else if (keys.leftKey.pressed &&
         isCheckpointCollisionDetectionActive) {
         platforms.forEach((platform) => {
             platform.position.x += 5;
+        });
+        checkpoints.forEach((checkpoint) => {
+            checkpoint.position.x += 5;
         });
     }
     // platform collision detection logic
@@ -151,16 +176,19 @@ const animate = () => {
             player.position.x >= platform.position.x - player.width / 2,
             player.position.x <= platform.position.x + platform.width - player.width / 3
         ];
+
         if (collisionDetectionRules.every(rule => rule)) {
             player.velocity.y = 0;
             return;
         };
+
         const platformDetectionRules = [
             player.position.x >= platform.position.x - player.width / 2,
             player.position.x <= platform.position.x + platform.width - player.width / 3,
             player.position.y + player.height >= platform.position.y,
             player.position.y <= platform.position.y + platform.height,
         ];
+
         if (platformDetectionRules.every(rule => rule)) {
             player.position.y = platform.position.y + player.height;
             player.velocity.y = gravity;
